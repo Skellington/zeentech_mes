@@ -1,0 +1,353 @@
+.
+├── analysis_options.yaml
+├── build
+│   ├── 9ff880b7bbecdcca87466b283000e616.cache.dill.track.dill
+│   ├── c9fd7c0c17340f0c06870514b6457ffa
+│   │   ├── _composite.stamp
+│   │   ├── dart_build.d
+│   │   ├── dart_build_result.json
+│   │   ├── dart_build.stamp
+│   │   ├── gen_dart_plugin_registrant.stamp
+│   │   ├── gen_localizations.stamp
+│   │   └── outputs.json
+│   ├── flutter_assets
+│   │   ├── AssetManifest.bin
+│   │   ├── FontManifest.json
+│   │   ├── fonts
+│   │   │   └── MaterialIcons-Regular.otf
+│   │   ├── kernel_blob.bin
+│   │   ├── NativeAssetsManifest.json
+│   │   ├── NOTICES.Z
+│   │   ├── shaders
+│   │   │   ├── ink_sparkle.frag
+│   │   │   └── stretch_effect.frag
+│   │   └── version.json
+│   ├── linux
+│   │   └── x64
+│   │       └── debug
+│   │           ├── build.ninja
+│   │           ├── bundle
+│   │           │   ├── data
+│   │           │   │   ├── flutter_assets
+│   │           │   │   │   ├── AssetManifest.bin
+│   │           │   │   │   ├── FontManifest.json
+│   │           │   │   │   ├── fonts
+│   │           │   │   │   │   └── MaterialIcons-Regular.otf
+│   │           │   │   │   ├── kernel_blob.bin
+│   │           │   │   │   ├── NativeAssetsManifest.json
+│   │           │   │   │   ├── NOTICES.Z
+│   │           │   │   │   ├── shaders
+│   │           │   │   │   │   ├── ink_sparkle.frag
+│   │           │   │   │   │   └── stretch_effect.frag
+│   │           │   │   │   └── version.json
+│   │           │   │   └── icudtl.dat
+│   │           │   ├── lib
+│   │           │   │   ├── libflutter_linux_gtk.so
+│   │           │   │   ├── libpdfium.so
+│   │           │   │   ├── libprinting_plugin.so
+│   │           │   │   ├── libscreen_retriever_linux_plugin.so
+│   │           │   │   └── libwindow_manager_plugin.so
+│   │           │   └── zeentech_mes
+│   │           ├── CMakeCache.txt
+│   │           ├── CMakeFiles
+│   │           │   ├── 4.2.1
+│   │           │   │   ├── CMakeCXXCompiler.cmake
+│   │           │   │   ├── CMakeDetermineCompilerABI_CXX.bin
+│   │           │   │   ├── CMakeSystem.cmake
+│   │           │   │   └── CompilerIdCXX
+│   │           │   │       ├── a.out
+│   │           │   │       ├── CMakeCXXCompilerId.cpp
+│   │           │   │       └── tmp
+│   │           │   ├── cmake.check_cache
+│   │           │   ├── CMakeConfigureLog.yaml
+│   │           │   ├── InstallScripts.json
+│   │           │   ├── pkgRedirects
+│   │           │   ├── rules.ninja
+│   │           │   └── TargetDirectories.txt
+│   │           ├── cmake_install.cmake
+│   │           ├── flutter
+│   │           │   ├── CMakeFiles
+│   │           │   └── cmake_install.cmake
+│   │           ├── install_manifest.txt
+│   │           ├── intermediates_do_not_run
+│   │           │   └── zeentech_mes
+│   │           ├── pdfium-build
+│   │           ├── pdfium-download
+│   │           │   ├── build.ninja
+│   │           │   ├── CMakeCache.txt
+│   │           │   ├── CMakeFiles
+│   │           │   │   ├── 4.2.1
+│   │           │   │   │   └── CMakeSystem.cmake
+│   │           │   │   ├── cmake.check_cache
+│   │           │   │   ├── CMakeConfigureLog.yaml
+│   │           │   │   ├── InstallScripts.json
+│   │           │   │   ├── pdfium-download-complete
+│   │           │   │   ├── pdfium-download.dir
+│   │           │   │   │   ├── Labels.json
+│   │           │   │   │   └── Labels.txt
+│   │           │   │   ├── pkgRedirects
+│   │           │   │   ├── rules.ninja
+│   │           │   │   └── TargetDirectories.txt
+│   │           │   ├── cmake_install.cmake
+│   │           │   ├── CMakeLists.txt
+│   │           │   └── pdfium-download-prefix
+│   │           │       ├── src
+│   │           │       │   ├── pdfium-download-stamp
+│   │           │       │   │   ├── download-pdfium-download.cmake
+│   │           │       │   │   ├── extract-pdfium-download.cmake
+│   │           │       │   │   ├── pdfium-download-build
+│   │           │       │   │   ├── pdfium-download-configure
+│   │           │       │   │   ├── pdfium-download-done
+│   │           │       │   │   ├── pdfium-download-download
+│   │           │       │   │   ├── pdfium-download-install
+│   │           │       │   │   ├── pdfium-download-mkdir
+│   │           │       │   │   ├── pdfium-download-patch
+│   │           │       │   │   ├── pdfium-download-patch-info.txt
+│   │           │       │   │   ├── pdfium-download-test
+│   │           │       │   │   ├── pdfium-download-update
+│   │           │       │   │   ├── pdfium-download-update-info.txt
+│   │           │       │   │   ├── pdfium-download-urlinfo.txt
+│   │           │       │   │   └── verify-pdfium-download.cmake
+│   │           │       │   └── pdfium-linux-x64.tgz
+│   │           │       └── tmp
+│   │           │           ├── pdfium-download-cfgcmd.txt
+│   │           │           └── pdfium-download-mkdirs.cmake
+│   │           ├── pdfium-src
+│   │           │   ├── args.gn
+│   │           │   ├── include
+│   │           │   │   ├── cpp
+│   │           │   │   │   ├── fpdf_deleters.h
+│   │           │   │   │   └── fpdf_scopers.h
+│   │           │   │   ├── fpdf_annot.h
+│   │           │   │   ├── fpdf_attachment.h
+│   │           │   │   ├── fpdf_catalog.h
+│   │           │   │   ├── fpdf_dataavail.h
+│   │           │   │   ├── fpdf_doc.h
+│   │           │   │   ├── fpdf_edit.h
+│   │           │   │   ├── fpdf_ext.h
+│   │           │   │   ├── fpdf_flatten.h
+│   │           │   │   ├── fpdf_formfill.h
+│   │           │   │   ├── fpdf_fwlevent.h
+│   │           │   │   ├── fpdf_javascript.h
+│   │           │   │   ├── fpdf_ppo.h
+│   │           │   │   ├── fpdf_progressive.h
+│   │           │   │   ├── fpdf_save.h
+│   │           │   │   ├── fpdf_searchex.h
+│   │           │   │   ├── fpdf_signature.h
+│   │           │   │   ├── fpdf_structtree.h
+│   │           │   │   ├── fpdf_sysfontinfo.h
+│   │           │   │   ├── fpdf_text.h
+│   │           │   │   ├── fpdf_thumbnail.h
+│   │           │   │   ├── fpdf_transformpage.h
+│   │           │   │   └── fpdfview.h
+│   │           │   ├── lib
+│   │           │   │   └── libpdfium.so
+│   │           │   ├── LICENSE
+│   │           │   ├── PDFiumConfig.cmake
+│   │           │   └── VERSION
+│   │           ├── plugins
+│   │           │   ├── printing
+│   │           │   │   ├── CMakeFiles
+│   │           │   │   │   └── printing_plugin.dir
+│   │           │   │   │       ├── printing_plugin.cc.o
+│   │           │   │   │       └── print_job.cc.o
+│   │           │   │   ├── cmake_install.cmake
+│   │           │   │   └── libprinting_plugin.so
+│   │           │   ├── screen_retriever_linux
+│   │           │   │   ├── CMakeFiles
+│   │           │   │   │   └── screen_retriever_linux_plugin.dir
+│   │           │   │   │       └── screen_retriever_linux_plugin.cc.o
+│   │           │   │   ├── cmake_install.cmake
+│   │           │   │   └── libscreen_retriever_linux_plugin.so
+│   │           │   └── window_manager
+│   │           │       ├── CMakeFiles
+│   │           │       │   └── window_manager_plugin.dir
+│   │           │       │       └── window_manager_plugin.cc.o
+│   │           │       ├── cmake_install.cmake
+│   │           │       └── libwindow_manager_plugin.so
+│   │           └── runner
+│   │               ├── CMakeFiles
+│   │               │   └── zeentech_mes.dir
+│   │               │       ├── __
+│   │               │       │   └── flutter
+│   │               │       │       └── generated_plugin_registrant.cc.o
+│   │               │       ├── main.cc.o
+│   │               │       └── my_application.cc.o
+│   │               └── cmake_install.cmake
+│   ├── native_assets
+│   │   └── linux
+│   └── native_hooks
+├── estrutura.txt
+├── lib
+│   ├── core
+│   │   ├── database
+│   │   │   ├── local_database.dart
+│   │   │   └── local_database.g.dart
+│   │   ├── providers.dart
+│   │   ├── providers.g.dart
+│   │   ├── services
+│   │   │   └── shift_service.dart
+│   │   ├── theme
+│   │   │   └── app_theme.dart
+│   │   ├── ui
+│   │   │   ├── animated_grid_background.dart
+│   │   │   ├── blur_fade.dart
+│   │   │   ├── glass_container.dart
+│   │   │   └── main_layout.dart
+│   │   └── utils
+│   │       └── app_paths.dart
+│   ├── features
+│   │   ├── dashboard
+│   │   │   ├── application
+│   │   │   │   └── report_service.dart
+│   │   │   ├── data
+│   │   │   │   └── statistics_service.dart
+│   │   │   ├── domain
+│   │   │   │   └── dashboard_data.dart
+│   │   │   └── presentation
+│   │   │       ├── controller
+│   │   │       │   ├── dashboard_controller.dart
+│   │   │       │   └── dashboard_controller.g.dart
+│   │   │       ├── dialog
+│   │   │       │   ├── advanced_date_filter_dialog.dart
+│   │   │       │   ├── report_preview_dialog.dart
+│   │   │       │   └── shift_configuration_dialog.dart
+│   │   │       ├── screen
+│   │   │       │   └── dashboard_screen.dart
+│   │   │       └── widgets
+│   │   │           ├── chart_widgets.dart
+│   │   │           ├── custom_date_picker_filter.dart
+│   │   │           ├── dashboard_card.dart
+│   │   │           ├── part_type_breakdown_widget.dart
+│   │   │           └── summary_widgets.dart
+│   │   ├── production
+│   │   │   ├── application
+│   │   │   │   └── production_logic_service.dart
+│   │   │   ├── data
+│   │   │   │   └── repository
+│   │   │   │       ├── downtime_repository_impl.dart
+│   │   │   │       ├── part_type_repository_impl.dart
+│   │   │   │       └── production_repository_impl.dart
+│   │   │   ├── domain
+│   │   │   │   ├── entity
+│   │   │   │   │   ├── dashboard_stats.dart
+│   │   │   │   │   ├── dashboard_stats.freezed.dart
+│   │   │   │   │   ├── downtime_record.dart
+│   │   │   │   │   ├── downtime_record.freezed.dart
+│   │   │   │   │   ├── downtime_record.g.dart
+│   │   │   │   │   ├── packer.dart
+│   │   │   │   │   ├── packer.freezed.dart
+│   │   │   │   │   ├── packer.g.dart
+│   │   │   │   │   ├── production_record.dart
+│   │   │   │   │   ├── production_record.freezed.dart
+│   │   │   │   │   ├── production_record.g.dart
+│   │   │   │   │   ├── shift_configuration.dart
+│   │   │   │   │   ├── shift_configuration.freezed.dart
+│   │   │   │   │   ├── shift_configuration.g.dart
+│   │   │   │   │   ├── station.dart
+│   │   │   │   │   ├── station.freezed.dart
+│   │   │   │   │   └── station.g.dart
+│   │   │   │   └── repository
+│   │   │   │       ├── downtime_repository.dart
+│   │   │   │       ├── part_type_repository.dart
+│   │   │   │       └── production_repository.dart
+│   │   │   ├── presentation
+│   │   │   │   ├── controller
+│   │   │   │   │   ├── packer_controller.dart
+│   │   │   │   │   ├── packer_controller.g.dart
+│   │   │   │   │   ├── part_type_controller.dart
+│   │   │   │   │   ├── production_controller.dart
+│   │   │   │   │   ├── production_controller.g.dart
+│   │   │   │   │   ├── station_controller.dart
+│   │   │   │   │   ├── station_controller.g.dart
+│   │   │   │   │   ├── stopwatch_controller.dart
+│   │   │   │   │   └── stopwatch_controller.g.dart
+│   │   │   │   └── screen
+│   │   │   │       ├── downtime_history_screen.dart
+│   │   │   │       ├── packer_screen.dart
+│   │   │   │       ├── part_type_manager_screen.dart
+│   │   │   │       ├── production_screen.dart
+│   │   │   │       └── station_screen.dart
+│   │   │   └── production.dart
+│   │   └── settings
+│   │       └── presentation
+│   │           ├── dialog
+│   │           │   └── part_type_manager_dialog.dart
+│   │           ├── screen
+│   │           │   └── settings_screen.dart
+│   │           └── screens
+│   └── main.dart
+├── linux
+│   ├── CMakeLists.txt
+│   ├── flutter
+│   │   ├── CMakeLists.txt
+│   │   ├── ephemeral
+│   │   │   ├── flutter_linux
+│   │   │   │   ├── fl_application.h
+│   │   │   │   ├── fl_basic_message_channel.h
+│   │   │   │   ├── fl_binary_codec.h
+│   │   │   │   ├── fl_binary_messenger.h
+│   │   │   │   ├── fl_dart_project.h
+│   │   │   │   ├── fl_engine.h
+│   │   │   │   ├── fl_event_channel.h
+│   │   │   │   ├── fl_json_message_codec.h
+│   │   │   │   ├── fl_json_method_codec.h
+│   │   │   │   ├── fl_message_codec.h
+│   │   │   │   ├── fl_method_call.h
+│   │   │   │   ├── fl_method_channel.h
+│   │   │   │   ├── fl_method_codec.h
+│   │   │   │   ├── fl_method_response.h
+│   │   │   │   ├── fl_pixel_buffer_texture.h
+│   │   │   │   ├── fl_plugin_registrar.h
+│   │   │   │   ├── fl_plugin_registry.h
+│   │   │   │   ├── fl_standard_message_codec.h
+│   │   │   │   ├── fl_standard_method_codec.h
+│   │   │   │   ├── fl_string_codec.h
+│   │   │   │   ├── fl_texture_gl.h
+│   │   │   │   ├── fl_texture.h
+│   │   │   │   ├── fl_texture_registrar.h
+│   │   │   │   ├── flutter_linux.h
+│   │   │   │   ├── fl_value.h
+│   │   │   │   └── fl_view.h
+│   │   │   ├── generated_config.cmake
+│   │   │   ├── icudtl.dat
+│   │   │   └── libflutter_linux_gtk.so
+│   │   ├── generated_plugin_registrant.cc
+│   │   ├── generated_plugin_registrant.h
+│   │   └── generated_plugins.cmake
+│   └── runner
+│       ├── CMakeLists.txt
+│       ├── main.cc
+│       ├── my_application.cc
+│       └── my_application.h
+├── pubspec.lock
+├── pubspec.yaml
+├── README.md
+├── test
+│   ├── shift_service_test.dart
+│   └── widget_test.dart
+├── windows
+│   ├── CMakeLists.txt
+│   ├── flutter
+│   │   ├── CMakeLists.txt
+│   │   ├── ephemeral
+│   │   ├── generated_plugin_registrant.cc
+│   │   ├── generated_plugin_registrant.h
+│   │   └── generated_plugins.cmake
+│   └── runner
+│       ├── CMakeLists.txt
+│       ├── flutter_window.cpp
+│       ├── flutter_window.h
+│       ├── main.cpp
+│       ├── resource.h
+│       ├── resources
+│       │   └── app_icon.ico
+│       ├── runner.exe.manifest
+│       ├── Runner.rc
+│       ├── utils.cpp
+│       ├── utils.h
+│       ├── win32_window.cpp
+│       └── win32_window.h
+└── zeentech_mes.iml
+
+98 directories, 253 files

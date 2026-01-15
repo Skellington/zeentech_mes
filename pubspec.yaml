@@ -1,0 +1,53 @@
+name: zeentech_mes
+description: "High-performance, offline-first Desktop application for Zeentech Production Control."
+version: 1.0.0+1
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  # State Management
+  flutter_riverpod: ^3.1.0
+  riverpod_annotation: ^4.0.0
+  
+  # Data & Persistence
+  drift: ^2.14.0
+  sqlite3: ^2.1.0
+  sqflite_common_ffi: ^2.3.0
+  path_provider: ^2.1.1
+  path: ^1.8.3
+  
+  # Utilities & Helpers
+  intl: ^0.20.2
+  equatable: ^2.0.5
+  gap: ^3.0.0
+  google_fonts: ^6.1.0
+  uuid: ^4.2.1
+  
+  # Code Generation Support
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.8.1
+  flutter_animate: ^4.5.2
+  fl_chart: ^1.1.1
+  flutter_staggered_grid_view: ^0.7.0
+  window_manager: ^0.5.1
+  pdf: ^3.11.3
+  printing: ^5.14.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  
+  # Code Generation
+  build_runner: ^2.4.7
+  riverpod_generator: ^4.0.0+1
+  drift_dev: ^2.14.0
+  freezed: ^3.2.3
+  json_serializable: ^6.7.1
+
+flutter:
+  uses-material-design: true

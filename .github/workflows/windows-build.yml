@@ -1,0 +1,34 @@
+name: Build Windows Portable
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Enable Windows Desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Package as Zip
+        shell: bash
+        run: |
+          cd build/windows/x64/runner/Release/
+          zip -r ../../../../zeentech_mes-portable-windows.zip . *
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zeentech-mes
+          path: zeentech_mes-portable-windows.zip
