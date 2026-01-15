@@ -22,10 +22,8 @@ jobs:
         run: flutter build windows --release
 
       - name: Package as Zip
-        shell: bash
         run: |
-          cd build/windows/x64/runner/Release/
-          zip -r ../../../../zeentech_mes-portable-windows.zip . *
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath zeentech_mes-portable-windows.zip
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
