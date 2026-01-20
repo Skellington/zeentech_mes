@@ -217,7 +217,8 @@ class ProductionRepositoryImpl implements IProductionRepository {
 
     final row = await (_db.select(_db.productionRecords)
           ..where((t) => t.barcode.equals(barcode))
-          ..where((t) => t.timestamp.isBetweenValues(startOfDay, endOfDay)))
+          ..where((t) => t.timestamp.isBetweenValues(startOfDay, endOfDay))
+          ..limit(1))
         .getSingleOrNull();
 
     if (row == null) return null;

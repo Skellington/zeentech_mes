@@ -36,6 +36,7 @@ class _ProductionScreenState extends ConsumerState<ProductionScreen> {
   // Part Type State
   int? _selectedPartTypeId;
   Timer? _idleTimer;
+  bool _isSubmitting = false; // LOCKER
 
   void _selectPartType(int? id) {
     setState(() {
@@ -628,19 +629,44 @@ class _ProductionScreenState extends ConsumerState<ProductionScreen> {
       children: [
         const Icon(Icons.qr_code_scanner, size: 64, color: Colors.greenAccent),
         const Gap(24),
-        TextField(
-          controller: _barcodeController,
-          focusNode: _barcodeFocus,
-          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-          decoration: InputDecoration(
-            hintText: "ESCANEIE AGORA",
-            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.1)),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            filled: true,
-            fillColor: Colors.black12,
+        Focus(
+          onKeyEvent: (node, event) {
+            if (event is KeyDownEvent) {
+              if (event.logicalKey == LogicalKeyboardKey.tab ||
+                  event.logicalKey == LogicalKeyboardKey.arrowDown ||
+                  event.logicalKey == LogicalKeyboardKey.arrowUp ||
+                  event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+                  event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                return KeyEventResult.handled; // PREVENT FOCUS LOSS
+              }
+            }
+            return KeyEventResult.ignored;
+          },
+          child: TextField(
+            controller: _barcodeController,
+            focusNode: _barcodeFocus,
+            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              hintText: "ESCANEIE AGORA",
+              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.1)),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              filled: true,
+              fillColor: Colors.black12,
+            ),
+            onChanged: (val) {
+              // AUTO-SUBMIT LOGIC
+              if (!_isExport) {
+                // Fix: Only auto-submit on 10 digits (Volume ID).
+                // Do NOT submit on 8 digits, as it interrupts the typing of a 10-digit code!
+                if (val.length == 10) {
+                  _submitProduction(val);
+                }
+              }
+            },
+            onSubmitted: (val) => _submitProduction(val),
           ),
-          onSubmitted: (val) => _submitProduction(val),
         ),
         const Gap(16),
         const Text("Modo de Alta Velocidade Ativo",
@@ -743,334 +769,348 @@ class _ProductionScreenState extends ConsumerState<ProductionScreen> {
   }
 
   Future<void> _submitProduction(String barcode) async {
-    // 1. Validate Input (Empty check)
-    if (barcode.isEmpty) {
-      if (_isExport) _showError("Informe o Volume!");
-      return;
-    }
-
-    // 2. STRICT VALIDATION (Volume ID vs Part Number)
-    if (!_isExport) {
-      // Rule: Volume ID is EXACTLY 10 digits (Numeric).
-      // Part Number is usually 8 digits.
-      // Location contains letters.
-
-      final isVolumeId = RegExp(r'^\d{10}$').hasMatch(barcode);
-      final isPartNumber = RegExp(r'^\d{8}$').hasMatch(barcode);
-
-      if (isVolumeId) {
-        // ACCEPT: Valid Volume ID, proceed below.
-      } else if (isPartNumber) {
-        // IGNORE: It's just a part number scan, not a volume.
-        // Subtle feedback (Flash Warning) without error sound.
-        _triggerFlash(Colors.orangeAccent);
-        _barcodeController.clear();
-        _barcodeFocus.requestFocus();
-        return;
-      } else {
-        // ERROR: Random scan (Location, trash, or partial).
-        // Trigger Red Flash + Error to indicate "Wrong Barcode"
-        _triggerFlash(Colors.redAccent);
-        _barcodeController.clear();
-        _barcodeFocus.requestFocus();
-        // Optional: Show error message if needed, but RED flash is usually sufficient for speed.
-        // _showError("Código Inválido");
-        return;
-      }
-    }
-
-    // 3. Station Checks
-    if (_selectedStation == null) {
-      _showError("Selecione uma estação!");
-      return;
-    }
-    if (_selectedStation!.assignedPackerId1 == null &&
-        _selectedStation!.assignedPackerId2 == null) {
-      _showError("Nenhum embalador na estação!");
-      return;
-    }
-
-    // 4. DUPLICATE CHECK
-    final repo = ref.read(productionRepositoryProvider);
-    final existing =
-        await repo.findProductionByBarcode(barcode, DateTime.now());
-
-    if (existing != null) {
-      await SystemSound.play(SystemSoundType.alert);
-
-      // Fetch station name
-      final stations = await repo.getAllStations();
-      final stationName = stations
-          .firstWhere((s) => s.id == existing.stationId,
-              orElse: () =>
-                  const Station(id: 0, name: 'Desconhecida', status: 'OK'))
-          .name;
-
-      if (!mounted) return;
-
-      _triggerFlash(Colors.redAccent);
-
-      await showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          backgroundColor: Colors.red[900],
-          title: const Row(
-            children: [
-              Icon(Icons.error_outline, color: Colors.white, size: 32),
-              Gap(12),
-              Text("Volume Duplicado!",
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Este volume já foi registrado anteriormente.",
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              const Gap(16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.black26,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white10),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildDetailRow("Horário:",
-                        DateFormat("HH:mm").format(existing.timestamp)),
-                    const Gap(8),
-                    _buildDetailRow("Estação:", stationName),
-                    const Gap(8),
-                    Row(
-                      children: [
-                        const Text("Tipo:",
-                            style: TextStyle(color: Colors.white70)),
-                        const Gap(8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: existing.type == ProductionType.national
-                                ? Colors.greenAccent.withValues(alpha: 0.2)
-                                : Colors.purpleAccent.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(
-                                color: existing.type == ProductionType.national
-                                    ? Colors.greenAccent
-                                    : Colors.purpleAccent),
-                          ),
-                          child: Text(
-                            existing.type == ProductionType.national
-                                ? "NACIONAL"
-                                : "EXPORTAÇÃO",
-                            style: TextStyle(
-                              color: existing.type == ProductionType.national
-                                  ? Colors.greenAccent
-                                  : Colors.purpleAccent,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              )
-            ],
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.red[900]),
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text("OK",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-            )
-          ],
-        ),
-      );
-
-      _barcodeController.clear();
-      _barcodeFocus.requestFocus();
-      return;
-    }
-
-    if (!mounted) return;
-
-    final int? vol = _isExport ? int.tryParse(_volumeController.text) : null;
-    final int? qty = _isExport ? int.tryParse(_quantityController.text) : null;
+    if (_isSubmitting) return; // PREVENT DOUBLE SUBMISSION
+    _isSubmitting = true;
 
     try {
-      // Validate Part Type Selection (Mandatory for BOTH Modes)
-      if (_selectedPartTypeId == null) {
-        // Visual & Audio Feedback
-        _triggerFlash(Colors.redAccent);
+      // 1. Validate Input (Empty check)
+      if (barcode.isEmpty) {
+        if (_isExport) _showError("Informe o Volume!");
+        return;
+      }
+
+      // 2. STRICT VALIDATION (Volume ID vs Part Number)
+      if (!_isExport) {
+        // Rule: Volume ID is EXACTLY 10 digits (Numeric).
+        // Part Number is usually 8 digits.
+        // Location contains letters.
+
+        final isVolumeId = RegExp(r'^\d{10}$').hasMatch(barcode);
+        final isPartNumber = RegExp(r'^\d{8}$').hasMatch(barcode);
+
+        if (isVolumeId) {
+          // ACCEPT: Valid Volume ID, proceed below.
+        } else if (isPartNumber) {
+          // IGNORE: It's just a part number scan, not a volume.
+          // Subtle feedback (Flash Warning) without error sound.
+          _triggerFlash(Colors.orangeAccent);
+          _barcodeController.clear();
+          _barcodeFocus.requestFocus();
+          return;
+        } else {
+          // ERROR: Random scan (Location, trash, or partial).
+          // Trigger Red Flash + Error to indicate "Wrong Barcode"
+          _triggerFlash(Colors.redAccent);
+          _barcodeController.clear();
+          _barcodeFocus.requestFocus();
+          // Optional: Show error message if needed, but RED flash is usually sufficient for speed.
+          // _showError("Código Inválido");
+          return;
+        }
+      }
+
+      // 3. Station Checks
+      if (_selectedStation == null) {
+        _showError("Selecione uma estação!");
+        return;
+      }
+      if (_selectedStation!.assignedPackerId1 == null &&
+          _selectedStation!.assignedPackerId2 == null) {
+        _showError("Nenhum embalador na estação!");
+        return;
+      }
+
+      // 4. DUPLICATE CHECK
+      final repo = ref.read(productionRepositoryProvider);
+      final existing =
+          await repo.findProductionByBarcode(barcode, DateTime.now());
+
+      if (existing != null) {
         await SystemSound.play(SystemSoundType.alert);
+
+        // Fetch station name
+        final stations = await repo.getAllStations();
+        final stationName = stations
+            .firstWhere((s) => s.id == existing.stationId,
+                orElse: () =>
+                    const Station(id: 0, name: 'Desconhecida', status: 'OK'))
+            .name;
 
         if (!mounted) return;
 
-        // Show Error Dialog
+        _triggerFlash(Colors.redAccent);
+
         await showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-                  backgroundColor: Colors.red[900],
-                  title: const Row(
-                    children: [
-                      Icon(Icons.warning, color: Colors.white),
-                      Gap(8),
-                      Text("Atenção", style: TextStyle(color: Colors.white)),
-                    ],
-                  ),
-                  content: const Text(
-                      "Por favor, selecione o Tipo de Peça antes de escanear!",
-                      style: TextStyle(color: Colors.white, fontSize: 16)),
-                  actions: [
-                    ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.red[900]),
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text("OK",
-                            style: TextStyle(fontWeight: FontWeight.bold)))
-                  ],
-                ));
-
-        if (_isExport) {
-          _volumeFocus.requestFocus();
-        } else {
-          _barcodeController.clear();
-          _barcodeFocus.requestFocus();
-        }
-        return;
-      }
-
-      // Reset Timer on action
-      _resetIdleTimer();
-
-      await ref.read(productionControllerProvider.notifier).registerProduction(
-            stationId: _selectedStation!.id,
-            type: _isExport ? ProductionType.export : ProductionType.national,
-            barcode: barcode,
-            isExport: _isExport,
-            volume: vol,
-            quantity: qty,
-            partTypeId: _selectedPartTypeId,
-          );
-
-      if (!mounted) return;
-
-      // SUCCESS FEEDBACK
-      _triggerFlash(Colors.greenAccent);
-
-      if (_isExport) {
-        _volumeController.clear();
-        _quantityController.clear();
-        _volumeFocus.requestFocus();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Exportação Registrada!"),
-            backgroundColor: Colors.green));
-      } else {
-        // National: RAPID FIRE
-        _barcodeController.clear();
-        _barcodeFocus.requestFocus();
-      }
-    } catch (e) {
-      if (!mounted) return;
-
-      if (e is StationStoppedException) {
-        _triggerFlash(Colors.redAccent); // Visual Cue
-
-        // Show Warning Dialog
-        final shouldForce = await showDialog<bool>(
           context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
+          builder: (ctx) => AlertDialog(
             backgroundColor: Colors.red[900],
             title: const Row(
               children: [
-                Icon(Icons.warning_amber_rounded,
-                    color: Colors.white, size: 32),
-                SizedBox(width: 12),
-                Text("ESTAÇÃO PARADA!", style: TextStyle(color: Colors.white)),
+                Icon(Icons.error_outline, color: Colors.white, size: 32),
+                Gap(12),
+                Text("Volume Duplicado!",
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold)),
               ],
             ),
-            content: const Text(
-              "Esta estação está em pausa. Deseja registrar a produção mesmo assim?",
-              style: TextStyle(color: Colors.white, fontSize: 16),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Este volume já foi registrado anteriormente.",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const Gap(16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildDetailRow("Horário:",
+                          DateFormat("HH:mm").format(existing.timestamp)),
+                      const Gap(8),
+                      _buildDetailRow("Estação:", stationName),
+                      const Gap(8),
+                      Row(
+                        children: [
+                          const Text("Tipo:",
+                              style: TextStyle(color: Colors.white70)),
+                          const Gap(8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: existing.type == ProductionType.national
+                                  ? Colors.greenAccent.withValues(alpha: 0.2)
+                                  : Colors.purpleAccent.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(
+                                  color:
+                                      existing.type == ProductionType.national
+                                          ? Colors.greenAccent
+                                          : Colors.purpleAccent),
+                            ),
+                            child: Text(
+                              existing.type == ProductionType.national
+                                  ? "NACIONAL"
+                                  : "EXPORTAÇÃO",
+                              style: TextStyle(
+                                color: existing.type == ProductionType.national
+                                    ? Colors.greenAccent
+                                    : Colors.purpleAccent,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                )
+              ],
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false), // No
-                child: const Text("CANCELAR",
-                    style: TextStyle(color: Colors.white70)),
-              ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.red[900]),
-                onPressed: () => Navigator.pop(context, true), // Yes
-                child: const Text("SIM, REGISTRAR (FORÇAR)"),
-              ),
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text("OK",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              )
             ],
           ),
         );
 
-        if (shouldForce == true) {
-          // Retry with Force
-          try {
-            await ref
-                .read(productionControllerProvider.notifier)
-                .registerProduction(
-                  stationId: _selectedStation!.id,
-                  type: _isExport
-                      ? ProductionType.export
-                      : ProductionType.national,
-                  barcode: barcode,
-                  isExport: _isExport,
-                  volume: vol,
-                  quantity: qty,
-                  partTypeId: _selectedPartTypeId,
-                  force: true, // FORCE
-                );
+        _barcodeController.clear();
+        _barcodeFocus.requestFocus();
+        return;
+      }
 
-            if (!mounted) return;
-            _triggerFlash(Colors.greenAccent);
+      if (!mounted) return;
 
-            if (_isExport) {
-              _volumeController.clear();
-              _quantityController.clear();
-              _volumeFocus.requestFocus();
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  content: Text("Exportação Registrada!"),
-                  backgroundColor: Colors.green));
-            } else {
-              _barcodeController.clear();
-              _barcodeFocus.requestFocus();
-              // Keep selection for next scan in Rapid Mode?
-              // Requirement says "Reset after 60s". So we KEEP it.
-              _resetIdleTimer();
-            }
-            return;
-          } catch (forceError) {
-            _showError(forceError.toString());
+      final int? vol = _isExport ? int.tryParse(_volumeController.text) : null;
+      final int? qty =
+          _isExport ? int.tryParse(_quantityController.text) : null;
+
+      try {
+        // Validate Part Type Selection (Mandatory for BOTH Modes)
+        if (_selectedPartTypeId == null) {
+          // Visual & Audio Feedback
+          _triggerFlash(Colors.redAccent);
+          await SystemSound.play(SystemSoundType.alert);
+
+          if (!mounted) return;
+
+          // Show Error Dialog
+          await showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                    backgroundColor: Colors.red[900],
+                    title: const Row(
+                      children: [
+                        Icon(Icons.warning, color: Colors.white),
+                        Gap(8),
+                        Text("Atenção", style: TextStyle(color: Colors.white)),
+                      ],
+                    ),
+                    content: const Text(
+                        "Por favor, selecione o Tipo de Peça antes de escanear!",
+                        style: TextStyle(color: Colors.white, fontSize: 16)),
+                    actions: [
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.red[900]),
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text("OK",
+                              style: TextStyle(fontWeight: FontWeight.bold)))
+                    ],
+                  ));
+
+          if (_isExport) {
+            _volumeFocus.requestFocus();
+          } else {
+            _barcodeController.clear();
+            _barcodeFocus.requestFocus();
           }
+          return;
+        }
+
+        // Reset Timer on action
+        _resetIdleTimer();
+
+        await ref
+            .read(productionControllerProvider.notifier)
+            .registerProduction(
+              stationId: _selectedStation!.id,
+              type: _isExport ? ProductionType.export : ProductionType.national,
+              barcode: barcode,
+              isExport: _isExport,
+              volume: vol,
+              quantity: qty,
+              partTypeId: _selectedPartTypeId,
+            );
+
+        if (!mounted) return;
+
+        // SUCCESS FEEDBACK
+        _triggerFlash(Colors.greenAccent);
+
+        if (_isExport) {
+          _volumeController.clear();
+          _quantityController.clear();
+          _volumeFocus.requestFocus();
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Exportação Registrada!"),
+              backgroundColor: Colors.green));
         } else {
-          // Cancelled
+          // National: RAPID FIRE
           _barcodeController.clear();
           _barcodeFocus.requestFocus();
         }
-      } else {
-        _triggerFlash(Colors.redAccent);
-        _showError(e.toString());
-        if (!_isExport) _barcodeFocus.requestFocus();
+      } catch (e) {
+        if (!mounted) return;
+
+        if (e is StationStoppedException) {
+          _triggerFlash(Colors.redAccent); // Visual Cue
+
+          // Show Warning Dialog
+          final shouldForce = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              backgroundColor: Colors.red[900],
+              title: const Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded,
+                      color: Colors.white, size: 32),
+                  SizedBox(width: 12),
+                  Text("ESTAÇÃO PARADA!",
+                      style: TextStyle(color: Colors.white)),
+                ],
+              ),
+              content: const Text(
+                "Esta estação está em pausa. Deseja registrar a produção mesmo assim?",
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false), // No
+                  child: const Text("CANCELAR",
+                      style: TextStyle(color: Colors.white70)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.red[900]),
+                  onPressed: () => Navigator.pop(context, true), // Yes
+                  child: const Text("SIM, REGISTRAR (FORÇAR)"),
+                ),
+              ],
+            ),
+          );
+
+          if (shouldForce == true) {
+            // Retry with Force
+            try {
+              await ref
+                  .read(productionControllerProvider.notifier)
+                  .registerProduction(
+                    stationId: _selectedStation!.id,
+                    type: _isExport
+                        ? ProductionType.export
+                        : ProductionType.national,
+                    barcode: barcode,
+                    isExport: _isExport,
+                    volume: vol,
+                    quantity: qty,
+                    partTypeId: _selectedPartTypeId,
+                    force: true, // FORCE
+                  );
+
+              if (!mounted) return;
+              _triggerFlash(Colors.greenAccent);
+
+              if (_isExport) {
+                _volumeController.clear();
+                _quantityController.clear();
+                _volumeFocus.requestFocus();
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text("Exportação Registrada!"),
+                    backgroundColor: Colors.green));
+              } else {
+                _barcodeController.clear();
+                _barcodeFocus.requestFocus();
+                // Keep selection for next scan in Rapid Mode?
+                // Requirement says "Reset after 60s". So we KEEP it.
+                _resetIdleTimer();
+              }
+              return;
+            } catch (forceError) {
+              _showError(forceError.toString());
+            }
+          } else {
+            // Cancelled
+            _barcodeController.clear();
+            _barcodeFocus.requestFocus();
+          }
+        } else {
+          _triggerFlash(Colors.redAccent);
+          _showError(e.toString());
+          if (!_isExport) _barcodeFocus.requestFocus();
+        }
+      }
+    } finally {
+      if (mounted) {
+        _isSubmitting = false;
       }
     }
   }
